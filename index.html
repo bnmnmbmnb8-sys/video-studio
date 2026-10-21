@@ -54,49 +54,48 @@ nav{display:flex;background:var(--panel);padding:4px 8px 6px}
 nav button{flex:1;background:none;border:0;color:var(--mut);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0}
 nav button span{font-size:20px}
 nav button.on{color:var(--acc);font-weight:700}
+
+.bar{height:54px;overflow:visible}
+.blks{position:absolute;inset:0;display:flex;border-radius:10px;overflow:hidden}
+.blk{height:100%;background:color-mix(in srgb,var(--acc) 30%,var(--chip));border-left:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text);min-width:0;overflow:hidden}
+.blk:nth-child(even){background:color-mix(in srgb,var(--acc) 14%,var(--chip))}
+.blk.on{outline:2px solid var(--acc);outline-offset:-2px}
+.hd{display:flex;gap:8px}
+.ic{width:38px;height:38px;border-radius:50%;border:0;background:var(--chip);color:var(--text);font-size:18px}
+.ic:disabled{opacity:.3}
 </style>
 </head>
 <body>
-<header><h1>🎬 استوديو الفيديو</h1><button class="pill" id="exp" disabled>تصدير</button></header>
+<header><h1>🎬 استوديو الفيديو</h1><div class="hd"><button class="ic" id="un" disabled>↶</button><button class="ic" id="re" disabled>↷</button><button class="pill" id="exp" disabled>تصدير</button></div></header>
 <div class="stage">
   <canvas id="cv" width="640" height="360" hidden></canvas>
-  <label class="empty" id="empty"><div class="big">＋</div>اضغط لاستيراد فيديو<small>يعمل على جهازك بدون رفع</small><input id="file" type="file" accept="video/*" hidden></label>
+  <label class="empty" id="empty" for="file"><div class="big">＋</div>اضغط لاستيراد فيديو<small>يعمل على جهازك بدون رفع</small></label>
+  <input id="file" type="file" accept="video/*" multiple hidden>
   <div class="ov" id="ov">جارٍ التصدير...<div><i id="pi"></i></div></div>
 </div>
 <div class="tp"><button class="play" id="play">▶</button><span class="time" id="time">0:00 / 0:00</span></div>
-<div class="tl"><div class="bar" id="bar"><div class="sel" id="sel"></div><div class="h" id="hi" data-h="in"></div><div class="h" id="ho" data-h="out"></div><div class="ph" id="ph"></div></div></div>
+<div class="tl"><div class="bar" id="bar"><div class="blks" id="blks"></div><div class="h" id="hi" data-h="in"></div><div class="h" id="ho" data-h="out"></div><div class="ph" id="ph"></div></div></div>
 <div class="sheet">
-  <div class="pane on" id="p0">
-    <div class="chips" id="presets"></div>
-    <div class="chips" id="params"></div>
-    <div class="sl"><input type="range" id="fs"><b id="fv"></b></div>
-  </div>
+  <div class="pane on" id="p0"><div class="chips" id="presets"></div><div class="chips" id="params"></div><div class="sl"><input type="range" id="fs"><b id="fv"></b></div></div>
   <div class="pane" id="p1">
-    <div class="chips"><button class="chip" id="setIn">ضبط البداية هنا</button><button class="chip" id="setOut">ضبط النهاية هنا</button><button class="chip" id="rst">إعادة</button></div>
-    <p class="sm" id="trim"></p><p class="sm">اسحب المقبضين على الشريط لقص المقطع.</p>
+    <div class="chips"><label class="chip" for="file">＋ إضافة مقطع</label><button class="chip" id="split">✂ تقسيم هنا</button><button class="chip" id="dup">⧉ نسخ</button><button class="chip" id="del">🗑 حذف</button></div>
+    <div class="chips"><button class="chip" id="mL">→ تقديم</button><button class="chip" id="mR">← تأخير</button></div>
+    <p class="sm" id="trim"></p><p class="sm">المقطع الحالي هو الذي عليه المقبضان؛ اسحبهما للقص، واضغط على أي مكان في الشريط للانتقال.</p>
   </div>
-  <div class="pane" id="p2">
-    <input type="text" id="txt" placeholder="اكتب نصاً على الفيديو...">
-    <div class="chips" id="sws" style="margin-top:10px"></div>
+  <div class="pane" id="p2"><input type="text" id="txt" placeholder="اكتب نصاً على الفيديو..."><div class="chips" id="sws" style="margin-top:10px"></div>
     <div class="sl"><span>الحجم</span><input type="range" id="ts" min="20" max="200" value="70"></div>
     <div class="sl"><span>أفقي</span><input type="range" id="tx" min="0" max="100" value="50"></div>
-    <div class="sl"><span>رأسي</span><input type="range" id="ty" min="0" max="100" value="85"></div>
-  </div>
-  <div class="pane" id="p3">
-    <p class="sm" style="margin-top:0">السرعة</p>
-    <div class="chips" id="spd"></div>
-    <p class="sm">مستوى الصوت</p>
-    <div class="sl"><input type="range" id="vol" min="0" max="1" step="0.05" value="1"></div>
-  </div>
+    <div class="sl"><span>رأسي</span><input type="range" id="ty" min="0" max="100" value="85"></div></div>
+  <div class="pane" id="p3"><p class="sm" style="margin-top:0">السرعة</p><div class="chips" id="spd"></div><p class="sm">مستوى الصوت</p><div class="sl"><input type="range" id="vol" min="0" max="1" step="0.05" value="1"></div></div>
 </div>
-<nav id="nav"><button class="on"><span>✨</span>فلاتر</button><button><span>✂️</span>قص</button><button><span>🔤</span>نص</button><button><span>⚡</span>سرعة</button></nav>
+<nav id="nav"><button class="on"><span>✨</span>فلاتر</button><button><span>🎞️</span>مقاطع</button><button><span>🔤</span>نص</button><button><span>⚡</span>سرعة</button></nav>
 <video id="vid" playsinline hidden></video>
 <script>
 const $=id=>document.getElementById(id),v=$('vid'),cv=$('cv'),ctx=cv.getContext('2d');
 const F=[['brightness','السطوع',0,200,100,'%'],['contrast','التباين',0,200,100,'%'],['saturate','التشبع',0,300,100,'%'],['hue-rotate','اللون',0,360,0,'deg'],['blur','تمويه',0,10,0,'px'],['grayscale','أبيض وأسود',0,100,0,'%'],['sepia','سيبيا',0,100,0,'%']];
 const P={'الأصلي':[100,100,100,0,0,0,0],'سينمائي':[95,125,85,0,0,0,15],'دافئ':[105,105,120,-10,0,0,30],'بارد':[100,105,110,15,0,0,0],'قديم':[95,110,70,0,0,0,80],'أبيض وأسود':[100,120,100,0,0,100,0]};
 const val={};F.forEach(f=>val[f[0]]=f[4]);
-let cur=0,tin=0,tout=0,exporting=false,tcol='#ffffff';
+let cur=0,tcol='#ffffff',clips=[],ci=0,playing=false,busy=false,exporting=false,fin=null,uid=1,lt=0,vol=1,hist=[],redo=[],ac,gn,dst;
 function chipRow(el,items,cb,on){items.forEach((t,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=t;b.onclick=()=>{[...el.children].forEach(c=>c.classList.remove('on'));b.classList.add('on');cb(i)};el.appendChild(b)});if(on!=null)el.children[on].classList.add('on')}
 chipRow($('presets'),Object.keys(P),i=>{Object.values(P)[i].forEach((x,k)=>val[F[k][0]]=x);sl()});
 chipRow($('params'),F.map(f=>f[1]),i=>{cur=i;sl()},0);
@@ -106,35 +105,60 @@ $('fs').oninput=e=>{val[F[cur][0]]=e.target.value;$('fv').textContent=e.target.v
 chipRow($('spd'),['0.25×','0.5×','1×','1.5×','2×'],i=>v.playbackRate=[.25,.5,1,1.5,2][i],2);
 [...$('nav').children].forEach((b,i)=>b.onclick=()=>{[...$('nav').children].forEach(x=>x.classList.remove('on'));b.classList.add('on');document.querySelectorAll('.pane').forEach((p,k)=>p.classList.toggle('on',k==i))});
 const fmt=s=>{s=Math.max(0,s||0);return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')};
-$('file').onchange=e=>{const f=e.target.files[0];if(f)v.src=URL.createObjectURL(f)};
-v.onloadedmetadata=()=>{cv.width=v.videoWidth;cv.height=v.videoHeight;cv.hidden=false;$('empty').hidden=true;tin=0;tout=v.duration;$('exp').disabled=false;v.currentTime=0};
+const starts=()=>{let a=0;return clips.map(c=>{const s=a;a+=c.o-c.i;return s})},total=()=>clips.reduce((a,c)=>a+c.o-c.i,0);
+function audio(){if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();const s=ac.createMediaElementSource(v);gn=ac.createGain();dst=ac.createMediaStreamDestination();s.connect(gn);gn.connect(ac.destination);gn.connect(dst);gn.gain.value=vol}ac.resume()}
+$('vol').oninput=e=>{vol=+e.target.value;if(gn)gn.gain.value=vol;else v.volume=vol};
+async function load(i,t){const k=++lt;busy=true;ci=i;const c=clips[i];if(v.dataset.u!==c.url){v.dataset.u=c.url;v.src=c.url;await new Promise(r=>v.onloadeddata=r);if(k!==lt)return}
+ if(Math.abs(v.currentTime-t)>.02){v.currentTime=t;await new Promise(r=>{v.onseeked=r;setTimeout(r,500)});v.onseeked=null;if(k!==lt)return}
+ busy=false;if(playing)v.play().catch(()=>{})}
+function snap(){return JSON.stringify(clips)}
+function push(){hist.push(snap());if(hist.length>50)hist.shift();redo=[]}
+function restore(s){clips=JSON.parse(s);ci=Math.min(ci,Math.max(0,clips.length-1));if(clips.length){const c=clips[ci];if(v.dataset.u===c.url)load(ci,Math.min(Math.max(v.currentTime,c.i),c.o-.05));else load(ci,c.i)}else{playing=false;v.pause()}render()}
+$('un').onclick=()=>{if(!hist.length)return;redo.push(snap());restore(hist.pop())};
+$('re').onclick=()=>{if(!redo.length)return;hist.push(snap());restore(redo.pop())};
+function meta(f){return new Promise(r=>{const u=URL.createObjectURL(f),t=document.createElement('video');t.preload='metadata';t.onloadedmetadata=()=>r({url:u,dur:t.duration,w:t.videoWidth,h:t.videoHeight});t.onerror=()=>r(null);t.src=u})}
+$('file').onchange=async e=>{const fs=[...e.target.files];e.target.value='';if(!fs.length)return;const first=!clips.length;push();let n=0;
+ for(const f of fs){const m=await meta(f);if(!m)continue;clips.push({id:uid++,url:m.url,dur:m.dur,i:0,o:m.dur,w:m.w,h:m.h});n++}
+ if(!n){hist.pop();return}
+ if(first){cv.width=clips[0].w;cv.height=clips[0].h;ci=0;render();load(0,0)}else render()};
+function render(){const has=clips.length,T=total();cv.hidden=!has;$('empty').hidden=!!has;$('exp').disabled=!has;$('un').disabled=!hist.length;$('re').disabled=!redo.length;
+ $('blks').innerHTML='';clips.forEach((c,i)=>{const d=document.createElement('div');d.className='blk'+(i==ci?' on':'');d.style.width=(c.o-c.i)/T*100+'%';d.textContent=i+1;$('blks').appendChild(d)});
+ $('hi').style.display=$('ho').style.display=$('ph').style.display=has?'block':'none'}
+$('split').onclick=()=>{const c=clips[ci];if(!c)return;const t=v.currentTime;if(t>c.i+.2&&t<c.o-.2){push();clips.splice(ci+1,0,{...c,id:uid++,i:t});c.o=t;ci++;render();load(ci,t)}};
+$('dup').onclick=()=>{const c=clips[ci];if(!c)return;push();clips.splice(ci+1,0,{...c,id:uid++});render()};
+$('del').onclick=()=>{if(!clips.length)return;push();clips.splice(ci,1);if(clips.length){ci=Math.min(ci,clips.length-1);load(ci,clips[ci].i)}else{playing=false;v.pause()}render()};
+const mv=d=>{const j=ci+d;if(j<0||j>=clips.length)return;push();[clips[ci],clips[j]]=[clips[j],clips[ci]];ci=j;render()};
+$('mL').onclick=()=>mv(-1);$('mR').onclick=()=>mv(1);
+function tick(){if(!playing||busy||!clips.length)return;const c=clips[ci];if(v.currentTime>=c.o-.04||v.ended){if(ci<clips.length-1)load(ci+1,clips[ci+1].i);else{playing=false;v.pause();if(exporting&&fin)fin();else load(0,clips[0].i)}}}
 function draw(){
- if(v.readyState>=2){ctx.filter=F.map(f=>`${f[0]}(${val[f[0]]}${f[5]})`).join(' ');ctx.drawImage(v,0,0,cv.width,cv.height);ctx.filter='none';
-  const t=$('txt').value;if(t){const s=cv.height*$('ts').value/600;ctx.font=`bold ${s}px system-ui,sans-serif`;ctx.textAlign='center';ctx.fillStyle=tcol;ctx.strokeStyle='rgba(0,0,0,.55)';ctx.lineWidth=s/8;const x=cv.width*$('tx').value/100,y=cv.height*$('ty').value/100;ctx.strokeText(t,x,y);ctx.fillText(t,x,y)}}
- if(v.duration&&!v.paused&&v.currentTime>=tout&&!exporting){v.pause();v.currentTime=tin}
- const d=v.duration;if(d){const pc=x=>x/d*100+'%';$('ph').style.left=pc(v.currentTime);$('hi').style.left=pc(tin);$('ho').style.left=pc(tout);$('sel').style.left=pc(tin);$('sel').style.width=pc(tout-tin);
-  $('time').textContent=fmt(v.currentTime)+' / '+fmt(d);$('trim').textContent=`المحدد: ${fmt(tin)} ← ${fmt(tout)} (${(tout-tin).toFixed(1)} ث)`}
- $('play').textContent=v.paused?'▶':'⏸';requestAnimationFrame(draw)}
-const bar=$('bar');let drag=null;
-function pos(e){const r=bar.getBoundingClientRect();return Math.min(1,Math.max(0,(e.clientX-r.left)/r.width))*v.duration}
-bar.onpointerdown=e=>{if(!v.duration)return;bar.setPointerCapture(e.pointerId);drag=e.target.dataset.h||'seek';mv(e)};
-bar.onpointermove=e=>drag&&mv(e);bar.onpointerup=()=>drag=null;
-function mv(e){const t=pos(e);if(drag=='in'){tin=Math.min(t,tout-.2);v.currentTime=tin}else if(drag=='out'){tout=Math.max(t,tin+.2);v.currentTime=tout}else v.currentTime=t}
-$('play').onclick=()=>{if(!v.duration)return;if(v.paused){if(v.currentTime<tin||v.currentTime>=tout)v.currentTime=tin;v.play()}else v.pause()};
-$('setIn').onclick=()=>{if(v.currentTime<tout)tin=v.currentTime};
-$('setOut').onclick=()=>{if(v.currentTime>tin)tout=v.currentTime};
-$('rst').onclick=()=>{tin=0;tout=v.duration};
-$('vol').oninput=e=>v.volume=+e.target.value;
+ if(clips.length&&v.readyState>=2){const W=cv.width,H=cv.height;ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);const s=Math.min(W/v.videoWidth,H/v.videoHeight),w=v.videoWidth*s,h=v.videoHeight*s;
+  ctx.filter=F.map(f=>`${f[0]}(${val[f[0]]}${f[5]})`).join(' ');ctx.drawImage(v,(W-w)/2,(H-h)/2,w,h);ctx.filter='none';
+  const t=$('txt').value;if(t){const z=H*$('ts').value/600;ctx.font=`bold ${z}px system-ui,sans-serif`;ctx.textAlign='center';ctx.fillStyle=tcol;ctx.strokeStyle='rgba(0,0,0,.55)';ctx.lineWidth=z/8;const x=W*$('tx').value/100,y=H*$('ty').value/100;ctx.strokeText(t,x,y);ctx.fillText(t,x,y)}}
+ tick();
+ if(clips.length){const T=total(),S=starts(),c=clips[ci],g=S[ci]+Math.max(0,Math.min(c.o-c.i,v.currentTime-c.i)),p=x=>x/T*100+'%';
+  $('ph').style.left=p(g);$('hi').style.left=p(S[ci]);$('ho').style.left=p(S[ci]+c.o-c.i);$('time').textContent=fmt(g)+' / '+fmt(T);
+  $('trim').textContent=`المقطع ${ci+1} من ${clips.length} — مدته ${(c.o-c.i).toFixed(1)} ث`}
+ $('play').textContent=playing?'⏸':'▶';requestAnimationFrame(draw)}
+const bar=$('bar');let drag=null,d0;
+const bx=e=>{const r=bar.getBoundingClientRect();return Math.min(1,Math.max(0,(e.clientX-r.left)/r.width))};
+bar.onpointerdown=e=>{if(!clips.length)return;bar.setPointerCapture(e.pointerId);drag=e.target.dataset.h||'seek';if(drag!='seek'){push();const c=clips[ci];d0={x:bx(e),i:c.i,o:c.o}}pm(e)};
+bar.onpointermove=e=>drag&&pm(e);bar.onpointerup=()=>{if(drag&&drag!='seek')render();drag=null};
+function pm(e){const T=total();if(drag=='seek'){const g=bx(e)*T,S=starts();let i=clips.length-1;for(let k=0;k<clips.length;k++)if(g<S[k]+clips[k].o-clips[k].i){i=k;break}
+  const t=clips[i].i+Math.min(clips[i].o-clips[i].i,g-S[i]);if(i!=ci){render()}load(i,t);return}
+ const c=clips[ci],dt=(bx(e)-d0.x)*T;
+ if(drag=='in'){c.i=Math.min(Math.max(0,d0.i+dt),c.o-.2);v.currentTime=c.i}else{c.o=Math.max(Math.min(c.dur,d0.o+dt),c.i+.2);v.currentTime=Math.max(c.i,c.o-.05)}
+ let k=0;[...$('blks').children].forEach((d,j)=>{d.style.width=(clips[j].o-clips[j].i)/total()*100+'%'})}
+$('play').onclick=()=>{if(!clips.length)return;audio();if(!playing){playing=true;const c=clips[ci];if(v.currentTime>=c.o-.05||v.currentTime<c.i)load(ci,c.i);else if(!busy)v.play().catch(()=>{})}else{playing=false;v.pause()}};
 $('exp').onclick=async()=>{
  if(!window.MediaRecorder){alert('المتصفح لا يدعم التصدير');return}
- exporting=true;$('ov').style.display='flex';v.pause();v.currentTime=tin;await new Promise(r=>v.onseeked=r);v.onseeked=null;
- const st=cv.captureStream(30);try{v.captureStream().getAudioTracks().forEach(t=>st.addTrack(t))}catch(e){}
+ audio();exporting=true;playing=false;v.pause();$('ov').style.display='flex';await load(0,clips[0].i);
+ const st=cv.captureStream(30);dst.stream.getAudioTracks().forEach(t=>st.addTrack(t));
  const mt=['video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
  const rec=new MediaRecorder(st,mt?{mimeType:mt,videoBitsPerSecond:8e6}:{}),ch=[];
  rec.ondataavailable=e=>e.data.size&&ch.push(e.data);
- rec.onstop=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(ch,{type:rec.mimeType}));a.download='video.'+(rec.mimeType.includes('mp4')?'mp4':'webm');a.click();exporting=false;$('ov').style.display='none';v.pause()};
- rec.start();await v.play();
- const iv=setInterval(()=>{$('pi').style.width=Math.min(100,(v.currentTime-tin)/(tout-tin)*100)+'%';if(v.currentTime>=tout||v.ended){clearInterval(iv);rec.stop()}},100)};
+ rec.onstop=()=>{clearInterval(iv);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(ch,{type:rec.mimeType}));a.download='video.'+(rec.mimeType.includes('mp4')?'mp4':'webm');a.click();exporting=false;fin=null;$('ov').style.display='none';load(0,clips[0].i)};
+ fin=()=>setTimeout(()=>rec.stop(),200);rec.start();playing=true;v.play();
+ const iv=setInterval(()=>{const c=clips[ci];if(!c)return;const g=starts()[ci]+Math.max(0,v.currentTime-c.i);$('pi').style.width=Math.min(100,g/total()*100)+'%'},150)};
 draw();
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
