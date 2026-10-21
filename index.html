@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>استوديو الفيديو</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6c4cff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#f3f3f8;--panel:#fff;--text:#16161d;--mut:#7a7a8c;--line:#e2e2ea;--acc:#6c4cff;--acc2:#fff;--chip:#ececf4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0e13;--panel:#181820;--text:#f1f1f6;--mut:#8d8d9e;--line:#272731;--acc:#8b73ff;--chip:#23232d}}
+:root[data-theme="dark"]{--bg:#0e0e13;--panel:#181820;--text:#f1f1f6;--mut:#8d8d9e;--line:#272731;--acc:#8b73ff;--chip:#23232d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;display:flex;flex-direction:column;overflow:hidden;max-width:560px;margin-inline:auto}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px}
+h1{font-size:16px;margin:0;font-weight:700}
+.pill{background:var(--acc);color:var(--acc2);border:0;border-radius:999px;padding:9px 18px;font:inherit;font-size:14px;font-weight:600}
+.pill:disabled{opacity:.35}
+.stage{flex:1;min-height:0;margin:0 12px;background:#000;border-radius:20px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+canvas{max-width:100%;max-height:100%;display:block}
+.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#b5b5c4;text-align:center;padding:20px;font-size:14px}
+.big{width:76px;height:76px;border-radius:50%;background:var(--acc);color:#fff;font-size:34px;display:flex;align-items:center;justify-content:center}
+.ov{position:absolute;inset:0;background:rgba(0,0,0,.7);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-size:15px}
+.ov i{display:block;height:100%;width:0;background:var(--acc)}
+.ov div{width:60%;height:6px;background:#444;border-radius:4px;overflow:hidden}
+.tp{display:flex;align-items:center;gap:12px;padding:12px 16px 4px}
+.play{width:44px;height:44px;border-radius:50%;border:0;background:var(--text);color:var(--bg);font-size:16px;flex:none}
+.time{font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums;direction:ltr}
+.tl{padding:6px 22px 10px}
+.bar{position:relative;height:46px;background:var(--chip);border-radius:10px;direction:ltr;touch-action:none}
+.sel{position:absolute;top:0;bottom:0;border:2px solid var(--acc);border-radius:10px;background:color-mix(in srgb,var(--acc) 22%,transparent);pointer-events:none}
+.h{position:absolute;top:-4px;bottom:-4px;width:18px;margin-left:-9px;background:var(--acc);border-radius:6px}
+.h::after{content:"";position:absolute;top:14px;bottom:14px;left:8px;width:2px;background:#fff;opacity:.8;border-radius:2px}
+.ph{position:absolute;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;background:#ff4d6d;border-radius:2px;pointer-events:none}
+.sheet{background:var(--panel);border-radius:22px 22px 0 0;padding:12px 14px 6px;border-top:1px solid var(--line);min-height:150px}
+.pane{display:none}.pane.on{display:block}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;background:var(--chip);color:var(--text);border:0;border-radius:999px;padding:8px 14px;font:inherit;font-size:13px}
+.chip.on{background:var(--acc);color:#fff}
+.sl{display:flex;align-items:center;gap:10px;margin-top:6px}
+.sl b{min-width:38px;text-align:center;font-size:13px;color:var(--mut)}
+input[type=range]{flex:1;accent-color:var(--acc);height:30px}
+input[type=text]{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);flex:none}
+.sw.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.sm{font-size:12px;color:var(--mut);margin:8px 0 0}
+nav{display:flex;background:var(--panel);padding:4px 8px 6px}
+nav button{flex:1;background:none;border:0;color:var(--mut);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0}
+nav button span{font-size:20px}
+nav button.on{color:var(--acc);font-weight:700}
+</style>
+</head>
+<body>
+<header><h1>🎬 استوديو الفيديو</h1><button class="pill" id="exp" disabled>تصدير</button></header>
+<div class="stage">
+  <canvas id="cv" width="640" height="360" hidden></canvas>
+  <label class="empty" id="empty"><div class="big">＋</div>اضغط لاستيراد فيديو<small>يعمل على جهازك بدون رفع</small><input id="file" type="file" accept="video/*" hidden></label>
+  <div class="ov" id="ov">جارٍ التصدير...<div><i id="pi"></i></div></div>
+</div>
+<div class="tp"><button class="play" id="play">▶</button><span class="time" id="time">0:00 / 0:00</span></div>
+<div class="tl"><div class="bar" id="bar"><div class="sel" id="sel"></div><div class="h" id="hi" data-h="in"></div><div class="h" id="ho" data-h="out"></div><div class="ph" id="ph"></div></div></div>
+<div class="sheet">
+  <div class="pane on" id="p0">
+    <div class="chips" id="presets"></div>
+    <div class="chips" id="params"></div>
+    <div class="sl"><input type="range" id="fs"><b id="fv"></b></div>
+  </div>
+  <div class="pane" id="p1">
+    <div class="chips"><button class="chip" id="setIn">ضبط البداية هنا</button><button class="chip" id="setOut">ضبط النهاية هنا</button><button class="chip" id="rst">إعادة</button></div>
+    <p class="sm" id="trim"></p><p class="sm">اسحب المقبضين على الشريط لقص المقطع.</p>
+  </div>
+  <div class="pane" id="p2">
+    <input type="text" id="txt" placeholder="اكتب نصاً على الفيديو...">
+    <div class="chips" id="sws" style="margin-top:10px"></div>
+    <div class="sl"><span>الحجم</span><input type="range" id="ts" min="20" max="200" value="70"></div>
+    <div class="sl"><span>أفقي</span><input type="range" id="tx" min="0" max="100" value="50"></div>
+    <div class="sl"><span>رأسي</span><input type="range" id="ty" min="0" max="100" value="85"></div>
+  </div>
+  <div class="pane" id="p3">
+    <p class="sm" style="margin-top:0">السرعة</p>
+    <div class="chips" id="spd"></div>
+    <p class="sm">مستوى الصوت</p>
+    <div class="sl"><input type="range" id="vol" min="0" max="1" step="0.05" value="1"></div>
+  </div>
+</div>
+<nav id="nav"><button class="on"><span>✨</span>فلاتر</button><button><span>✂️</span>قص</button><button><span>🔤</span>نص</button><button><span>⚡</span>سرعة</button></nav>
+<video id="vid" playsinline hidden></video>
+<script>
+const $=id=>document.getElementById(id),v=$('vid'),cv=$('cv'),ctx=cv.getContext('2d');
+const F=[['brightness','السطوع',0,200,100,'%'],['contrast','التباين',0,200,100,'%'],['saturate','التشبع',0,300,100,'%'],['hue-rotate','اللون',0,360,0,'deg'],['blur','تمويه',0,10,0,'px'],['grayscale','أبيض وأسود',0,100,0,'%'],['sepia','سيبيا',0,100,0,'%']];
+const P={'الأصلي':[100,100,100,0,0,0,0],'سينمائي':[95,125,85,0,0,0,15],'دافئ':[105,105,120,-10,0,0,30],'بارد':[100,105,110,15,0,0,0],'قديم':[95,110,70,0,0,0,80],'أبيض وأسود':[100,120,100,0,0,100,0]};
+const val={};F.forEach(f=>val[f[0]]=f[4]);
+let cur=0,tin=0,tout=0,exporting=false,tcol='#ffffff';
+function chipRow(el,items,cb,on){items.forEach((t,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=t;b.onclick=()=>{[...el.children].forEach(c=>c.classList.remove('on'));b.classList.add('on');cb(i)};el.appendChild(b)});if(on!=null)el.children[on].classList.add('on')}
+chipRow($('presets'),Object.keys(P),i=>{Object.values(P)[i].forEach((x,k)=>val[F[k][0]]=x);sl()});
+chipRow($('params'),F.map(f=>f[1]),i=>{cur=i;sl()},0);
+function sl(){const f=F[cur],s=$('fs');s.min=f[2];s.max=f[3];s.value=val[f[0]];$('fv').textContent=val[f[0]]}
+$('fs').oninput=e=>{val[F[cur][0]]=e.target.value;$('fv').textContent=e.target.value};sl();
+['#ffffff','#ffd60a','#ff4d6d','#30d5c8','#6c4cff','#000000'].forEach(c=>{const b=document.createElement('button');b.className='sw'+(c==tcol?' on':'');b.style.background=c;b.onclick=()=>{tcol=c;[...$('sws').children].forEach(x=>x.classList.remove('on'));b.classList.add('on')};$('sws').appendChild(b)});
+chipRow($('spd'),['0.25×','0.5×','1×','1.5×','2×'],i=>v.playbackRate=[.25,.5,1,1.5,2][i],2);
+[...$('nav').children].forEach((b,i)=>b.onclick=()=>{[...$('nav').children].forEach(x=>x.classList.remove('on'));b.classList.add('on');document.querySelectorAll('.pane').forEach((p,k)=>p.classList.toggle('on',k==i))});
+const fmt=s=>{s=Math.max(0,s||0);return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')};
+$('file').onchange=e=>{const f=e.target.files[0];if(f)v.src=URL.createObjectURL(f)};
+v.onloadedmetadata=()=>{cv.width=v.videoWidth;cv.height=v.videoHeight;cv.hidden=false;$('empty').hidden=true;tin=0;tout=v.duration;$('exp').disabled=false;v.currentTime=0};
+function draw(){
+ if(v.readyState>=2){ctx.filter=F.map(f=>`${f[0]}(${val[f[0]]}${f[5]})`).join(' ');ctx.drawImage(v,0,0,cv.width,cv.height);ctx.filter='none';
+  const t=$('txt').value;if(t){const s=cv.height*$('ts').value/600;ctx.font=`bold ${s}px system-ui,sans-serif`;ctx.textAlign='center';ctx.fillStyle=tcol;ctx.strokeStyle='rgba(0,0,0,.55)';ctx.lineWidth=s/8;const x=cv.width*$('tx').value/100,y=cv.height*$('ty').value/100;ctx.strokeText(t,x,y);ctx.fillText(t,x,y)}}
+ if(v.duration&&!v.paused&&v.currentTime>=tout&&!exporting){v.pause();v.currentTime=tin}
+ const d=v.duration;if(d){const pc=x=>x/d*100+'%';$('ph').style.left=pc(v.currentTime);$('hi').style.left=pc(tin);$('ho').style.left=pc(tout);$('sel').style.left=pc(tin);$('sel').style.width=pc(tout-tin);
+  $('time').textContent=fmt(v.currentTime)+' / '+fmt(d);$('trim').textContent=`المحدد: ${fmt(tin)} ← ${fmt(tout)} (${(tout-tin).toFixed(1)} ث)`}
+ $('play').textContent=v.paused?'▶':'⏸';requestAnimationFrame(draw)}
+const bar=$('bar');let drag=null;
+function pos(e){const r=bar.getBoundingClientRect();return Math.min(1,Math.max(0,(e.clientX-r.left)/r.width))*v.duration}
+bar.onpointerdown=e=>{if(!v.duration)return;bar.setPointerCapture(e.pointerId);drag=e.target.dataset.h||'seek';mv(e)};
+bar.onpointermove=e=>drag&&mv(e);bar.onpointerup=()=>drag=null;
+function mv(e){const t=pos(e);if(drag=='in'){tin=Math.min(t,tout-.2);v.currentTime=tin}else if(drag=='out'){tout=Math.max(t,tin+.2);v.currentTime=tout}else v.currentTime=t}
+$('play').onclick=()=>{if(!v.duration)return;if(v.paused){if(v.currentTime<tin||v.currentTime>=tout)v.currentTime=tin;v.play()}else v.pause()};
+$('setIn').onclick=()=>{if(v.currentTime<tout)tin=v.currentTime};
+$('setOut').onclick=()=>{if(v.currentTime>tin)tout=v.currentTime};
+$('rst').onclick=()=>{tin=0;tout=v.duration};
+$('vol').oninput=e=>v.volume=+e.target.value;
+$('exp').onclick=async()=>{
+ if(!window.MediaRecorder){alert('المتصفح لا يدعم التصدير');return}
+ exporting=true;$('ov').style.display='flex';v.pause();v.currentTime=tin;await new Promise(r=>v.onseeked=r);v.onseeked=null;
+ const st=cv.captureStream(30);try{v.captureStream().getAudioTracks().forEach(t=>st.addTrack(t))}catch(e){}
+ const mt=['video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+ const rec=new MediaRecorder(st,mt?{mimeType:mt,videoBitsPerSecond:8e6}:{}),ch=[];
+ rec.ondataavailable=e=>e.data.size&&ch.push(e.data);
+ rec.onstop=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(ch,{type:rec.mimeType}));a.download='video.'+(rec.mimeType.includes('mp4')?'mp4':'webm');a.click();exporting=false;$('ov').style.display='none';v.pause()};
+ rec.start();await v.play();
+ const iv=setInterval(()=>{$('pi').style.width=Math.min(100,(v.currentTime-tin)/(tout-tin)*100)+'%';if(v.currentTime>=tout||v.ended){clearInterval(iv);rec.stop()}},100)};
+draw();
+if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>
